@@ -13,6 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const eventId = '2025-01-24';
 
 const attendees = [
     '문병식',
@@ -170,7 +171,7 @@ async function saveRemoteState(id) {
         return;
     }
     try {
-        await setDoc(doc(db, 'attendance', id), {
+        await setDoc(doc(db, 'events', eventId, 'attendees', id), {
             ...entry,
             name: entry.name
         }, { merge: true });
@@ -191,7 +192,7 @@ async function loadRemoteState() {
     try {
         const entries = await Promise.all(attendees.map(async (_, index) => {
             const id = `attendee-${index}`;
-            const snapshot = await getDoc(doc(db, 'attendance', id));
+            const snapshot = await getDoc(doc(db, 'events', eventId, 'attendees', id));
             if (snapshot.exists()) {
                 return { id, data: snapshot.data() };
             }
