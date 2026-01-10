@@ -126,7 +126,7 @@ body {
 }
 
 .attendee-table {
-    width: 100%;
+    width: auto;
     border-collapse: collapse;
     min-width: 680px;
     table-layout: auto;
@@ -212,6 +212,7 @@ body {
     }
 
     .attendee-table {
+        width: 100%;
         min-width: 620px;
     }
 
