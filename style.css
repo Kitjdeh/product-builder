@@ -129,6 +129,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     min-width: 680px;
+    table-layout: fixed;
 }
 
 .attendee-table th,
@@ -137,6 +138,23 @@ body {
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     text-align: left;
     font-size: 14px;
+}
+
+.attendee-table th:nth-child(1),
+.attendee-table td:nth-child(1) {
+    width: 110px;
+}
+
+.attendee-table th:nth-child(2),
+.attendee-table td:nth-child(2),
+.attendee-table th:nth-child(4),
+.attendee-table td:nth-child(4) {
+    width: 120px;
+}
+
+.attendee-table th:nth-child(3),
+.attendee-table td:nth-child(3) {
+    width: 140px;
 }
 
 .attendee-table th {
@@ -160,6 +178,7 @@ body {
     font-size: 13px;
     font-family: inherit;
     background: #ffffff;
+    min-width: 0;
 }
 
 .field input:focus,
@@ -187,6 +206,23 @@ body {
 
     .attendee-table {
         min-width: 620px;
+    }
+
+    .attendee-table th:nth-child(1),
+    .attendee-table td:nth-child(1) {
+        width: 90px;
+    }
+
+    .attendee-table th:nth-child(2),
+    .attendee-table td:nth-child(2),
+    .attendee-table th:nth-child(4),
+    .attendee-table td:nth-child(4) {
+        width: 100px;
+    }
+
+    .attendee-table th:nth-child(3),
+    .attendee-table td:nth-child(3) {
+        width: 120px;
     }
 
     .attendee-table th,
