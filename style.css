@@ -126,10 +126,10 @@ body {
 }
 
 .attendee-table {
-    width: auto;
+    width: 100%;
     border-collapse: collapse;
     min-width: 680px;
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 .attendee-table th,
@@ -143,7 +143,6 @@ body {
 .attendee-table th:nth-child(1),
 .attendee-table td:nth-child(1) {
     white-space: nowrap;
-    padding-right: 4px;
 }
 
 .attendee-table th:nth-child(2),
