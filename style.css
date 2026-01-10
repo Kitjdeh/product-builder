@@ -145,24 +145,6 @@ body {
     white-space: nowrap;
 }
 
-.attendee-table th:nth-child(2),
-.attendee-table td:nth-child(2),
-.attendee-table th:nth-child(5),
-.attendee-table td:nth-child(5) {
-    width: 65px;
-}
-
-.attendee-table th:nth-child(3),
-.attendee-table td:nth-child(3) {
-    width: 85px;
-}
-
-.attendee-table th:nth-child(4),
-.attendee-table td:nth-child(4) {
-    width: 70px;
-    padding-left: 4px;
-}
-
 .attendee-table th {
     font-size: 12px;
     letter-spacing: 0.4px;
