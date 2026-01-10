@@ -29,11 +29,13 @@ const attendees = [
 const storageKey = 'wedding-attendance-v1';
 const noteStorageKey = 'wedding-after-note-v1';
 const transportOptions = ['', 'SRT', '비행기', '자차', '버스'];
+const overnightOptions = ['', '예', '아니오'];
 
 const defaultEntry = {
     transport: '',
     departTime: '',
-    returnTime: ''
+    returnTime: '',
+    overnight: ''
 };
 
 const listElement = document.getElementById('attendeeList');
@@ -78,6 +80,7 @@ function renderList() {
         row.appendChild(createNameCell(name));
         row.appendChild(createInputCell('departTime', 'time', state[id].departTime, id));
         row.appendChild(createSelectCell('transport', transportOptions, state[id].transport, id));
+        row.appendChild(createSelectCell('overnight', overnightOptions, state[id].overnight, id));
         row.appendChild(createInputCell('returnTime', 'time', state[id].returnTime, id));
 
         listElement.appendChild(row);
@@ -152,6 +155,8 @@ function getLabelForKey(key) {
             return '교통수단';
         case 'returnTime':
             return '귀가 출발';
+        case 'overnight':
+            return '1박 여부';
         default:
             return '';
     }
