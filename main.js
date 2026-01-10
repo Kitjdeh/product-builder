@@ -27,6 +27,7 @@ const attendees = [
 ];
 
 const storageKey = 'wedding-attendance-v1';
+const noteStorageKey = 'wedding-after-note-v1';
 const transportOptions = ['', 'SRT', '비행기', '자차', '버스'];
 
 const defaultEntry = {
@@ -37,12 +38,14 @@ const defaultEntry = {
 
 const listElement = document.getElementById('attendeeList');
 const saveStatus = document.getElementById('saveStatus');
+const afterPartyNote = document.getElementById('afterPartyNote');
 
 const state = loadState();
 const saveTimers = new Map();
 
 renderList();
 loadRemoteState();
+initAfterNote();
 
 function loadState() {
     try {
@@ -203,9 +206,53 @@ async function loadRemoteState() {
             state[id] = { ...defaultEntry, ...state[id], ...data };
         });
 
+        const eventSnapshot = await getDoc(doc(db, 'events', eventId));
+        if (eventSnapshot.exists()) {
+            const data = eventSnapshot.data();
+            if (afterPartyNote && typeof data.afterPartyNote === 'string') {
+                afterPartyNote.value = data.afterPartyNote;
+            }
+        }
+
         renderList();
         persistState();
     } catch (error) {
         console.error('Firebase load error:', error);
+    }
+}
+
+function initAfterNote() {
+    if (!afterPartyNote) {
+        return;
+    }
+    const localNote = localStorage.getItem(noteStorageKey);
+    if (localNote) {
+        afterPartyNote.value = localNote;
+    }
+    let noteTimer = null;
+    afterPartyNote.addEventListener('input', (event) => {
+        localStorage.setItem(noteStorageKey, event.target.value);
+        if (noteTimer) {
+            clearTimeout(noteTimer);
+        }
+        noteTimer = setTimeout(() => {
+            saveRemoteNote(event.target.value);
+        }, 500);
+    });
+}
+
+async function saveRemoteNote(value) {
+    try {
+        await setDoc(doc(db, 'events', eventId), { afterPartyNote: value }, { merge: true });
+        if (saveStatus) {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            saveStatus.textContent = `Firebase 저장됨 · ${timestamp}`;
+        }
+    } catch (error) {
+        if (saveStatus) {
+            saveStatus.textContent = 'Firebase 저장 실패';
+        }
+        console.error('Firebase note save error:', error);
     }
 }
