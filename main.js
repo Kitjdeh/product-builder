@@ -1,3 +1,19 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCqYns7sjXUoNMIRvLA5G34KevtEl3HM1w",
+    authDomain: "aitestweb.firebaseapp.com",
+    projectId: "aitestweb",
+    storageBucket: "aitestweb.firebasestorage.app",
+    messagingSenderId: "270440605110",
+    appId: "1:270440605110:web:8d6c0f378e849ad9150d17",
+    measurementId: "G-4FGM1ZNKKY"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const attendees = [
     '문병식',
     '류광우',
@@ -22,8 +38,10 @@ const listElement = document.getElementById('attendeeList');
 const saveStatus = document.getElementById('saveStatus');
 
 const state = loadState();
+const saveTimers = new Map();
 
 renderList();
+loadRemoteState();
 
 function loadState() {
     try {
@@ -39,7 +57,7 @@ function persistState() {
     if (saveStatus) {
         const now = new Date();
         const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-        saveStatus.textContent = `자동 저장됨 · ${timestamp}`;
+        saveStatus.textContent = `로컬 저장됨 · ${timestamp}`;
     }
 }
 
@@ -119,6 +137,7 @@ function updateEntry(id, key, value) {
     }
     state[id][key] = value;
     persistState();
+    scheduleRemoteSave(id);
 }
 
 function getLabelForKey(key) {
@@ -131,5 +150,61 @@ function getLabelForKey(key) {
             return '귀가 출발';
         default:
             return '';
+    }
+}
+
+function scheduleRemoteSave(id) {
+    if (saveTimers.has(id)) {
+        clearTimeout(saveTimers.get(id));
+    }
+    const timer = setTimeout(() => {
+        saveRemoteState(id);
+        saveTimers.delete(id);
+    }, 500);
+    saveTimers.set(id, timer);
+}
+
+async function saveRemoteState(id) {
+    const entry = state[id];
+    if (!entry) {
+        return;
+    }
+    try {
+        await setDoc(doc(db, 'attendance', id), {
+            ...entry,
+            name: entry.name
+        }, { merge: true });
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        if (saveStatus) {
+            saveStatus.textContent = `Firebase 저장됨 · ${timestamp}`;
+        }
+    } catch (error) {
+        if (saveStatus) {
+            saveStatus.textContent = 'Firebase 저장 실패';
+        }
+        console.error('Firebase save error:', error);
+    }
+}
+
+async function loadRemoteState() {
+    try {
+        const entries = await Promise.all(attendees.map(async (_, index) => {
+            const id = `attendee-${index}`;
+            const snapshot = await getDoc(doc(db, 'attendance', id));
+            if (snapshot.exists()) {
+                return { id, data: snapshot.data() };
+            }
+            return null;
+        }));
+
+        entries.filter(Boolean).forEach(({ id, data }) => {
+            state[id] = { ...defaultEntry, ...state[id], ...data };
+        });
+
+        renderList();
+        persistState();
+    } catch (error) {
+        console.error('Firebase load error:', error);
     }
 }
