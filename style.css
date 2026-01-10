@@ -4,9 +4,56 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: #ffffff;
+            --header-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2a2a2a;
+            --text-muted: #666666;
+            --weekday-bg: #f8f9fa;
+            --border-color: #eeeeee;
+            --day-hover: #f0f0f0;
+            --selected-bg: #e8e0ff;
+            --modal-bg: #ffffff;
+            --modal-backdrop: rgba(0, 0, 0, 0.5);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-shadow: rgba(102, 126, 234, 0.4);
+            --accent-border: #667eea;
+            --sunday-color: #e74c3c;
+            --saturday-color: #3498db;
+            --toggle-bg: rgba(255, 255, 255, 0.2);
+            --toggle-border: rgba(255, 255, 255, 0.3);
+            --toggle-text: #ffffff;
+        }
+
+        body[data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+            --card-bg: #111827;
+            --header-gradient: linear-gradient(135deg, #0b1120 0%, #1f2937 100%);
+            --text-primary: #e5e7eb;
+            --text-muted: #9ca3af;
+            --weekday-bg: #0b1220;
+            --border-color: #1f2937;
+            --day-hover: #1f2937;
+            --selected-bg: #2e2a6f;
+            --modal-bg: #0f172a;
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --accent-shadow: rgba(79, 70, 229, 0.45);
+            --accent-border: #8b5cf6;
+            --sunday-color: #f87171;
+            --saturday-color: #60a5fa;
+            --toggle-bg: rgba(15, 23, 42, 0.6);
+            --toggle-border: rgba(148, 163, 184, 0.4);
+            --toggle-text: #e5e7eb;
+        }
+
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -15,9 +62,9 @@
         }
 
         .calendar-container {
-            background: white;
+            background: var(--card-bg);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px var(--shadow-color);
             overflow: hidden;
             width: 100%;
             max-width: 400px;
@@ -25,10 +72,41 @@
 
         /* 헤더 */
         .calendar-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--header-gradient);
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: var(--toggle-bg);
+            border: 1px solid var(--toggle-border);
+            color: var(--toggle-text);
+            border-radius: 999px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle-icon {
+            font-size: 13px;
+            line-height: 1;
+        }
+
+        .theme-toggle-label {
+            font-weight: 600;
         }
 
         .year-selector {
@@ -107,24 +185,24 @@
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            background: #f8f9fa;
+            background: var(--weekday-bg);
             padding: 15px 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .weekday {
             text-align: center;
             font-weight: bold;
             font-size: 14px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .weekday:first-child {
-            color: #e74c3c;
+            color: var(--sunday-color);
         }
 
         .weekday:last-child {
-            color: #3498db;
+            color: var(--saturday-color);
         }
 
         /* 날짜 그리드 */
@@ -144,10 +222,11 @@
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s;
+            color: var(--text-primary);
         }
 
         .day:hover:not(.empty):not(.today) {
-            background: #f0f0f0;
+            background: var(--day-hover);
         }
 
         .day.empty {
@@ -155,21 +234,21 @@
         }
 
         .day.today {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
             font-weight: bold;
         }
 
         .day.sunday {
-            color: #e74c3c;
+            color: var(--sunday-color);
         }
 
         .day.saturday {
-            color: #3498db;
+            color: var(--saturday-color);
         }
 
         .day.selected {
-            background: #e8e0ff;
+            background: var(--selected-bg);
             font-weight: bold;
         }
 
@@ -181,7 +260,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: var(--modal-backdrop);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -192,7 +271,7 @@
         }
 
         .year-modal-content {
-            background: white;
+            background: var(--modal-bg);
             border-radius: 20px;
             padding: 20px;
             width: 90%;
@@ -207,13 +286,13 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .year-modal-title {
             font-size: 20px;
             font-weight: bold;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .year-modal-close {
@@ -221,12 +300,12 @@
             border: none;
             font-size: 28px;
             cursor: pointer;
-            color: #999;
+            color: var(--text-muted);
             transition: color 0.3s;
         }
 
         .year-modal-close:hover {
-            color: #333;
+            color: var(--text-primary);
         }
 
         .year-grid {
@@ -243,20 +322,21 @@
             transition: all 0.3s;
             font-size: 16px;
             border: 2px solid transparent;
+            color: var(--text-primary);
         }
 
         .year-option:hover {
-            background: #f0f0f0;
+            background: var(--day-hover);
         }
 
         .year-option.current {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
             font-weight: bold;
         }
 
         .year-option.selected {
-            border-color: #667eea;
+            border-color: var(--accent-border);
             font-weight: bold;
         }
 
@@ -266,7 +346,7 @@
             width: calc(100% - 20px);
             margin: 10px;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
             border: none;
             border-radius: 10px;
@@ -278,7 +358,7 @@
 
         .today-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px var(--accent-shadow);
         }
 
         /* 반응형 */

@@ -1,10 +1,44 @@
 let currentDate = new Date();
         let selectedDate = null;
         const today = new Date();
+        const themeToggle = document.getElementById('themeToggle');
+        const themeStorageKey = 'calendar-theme';
+
+        function getInitialTheme() {
+            const storedTheme = localStorage.getItem(themeStorageKey);
+            if (storedTheme === 'light' || storedTheme === 'dark') {
+                return storedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function updateThemeToggle(theme) {
+            if (!themeToggle) {
+                return;
+            }
+            const isDark = theme === 'dark';
+            themeToggle.innerHTML = isDark
+                ? '<span class="theme-toggle-icon" aria-hidden="true">☀️</span><span class="theme-toggle-label">라이트 모드</span>'
+                : '<span class="theme-toggle-icon" aria-hidden="true">🌙</span><span class="theme-toggle-label">다크 모드</span>';
+            themeToggle.setAttribute('aria-label', isDark ? '라이트 모드로 전환' : '다크 모드로 전환');
+        }
+
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem(themeStorageKey, theme);
+            updateThemeToggle(theme);
+        }
 
         // 초기화
         function init() {
+            applyTheme(getInitialTheme());
             renderCalendar();
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+            }
         }
 
         // 달력 렌더링
