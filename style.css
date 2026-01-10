@@ -154,7 +154,7 @@ body {
 .attendee-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 720px;
+    min-width: 680px;
 }
 
 .attendee-table th,
@@ -213,5 +213,51 @@ body {
 
     .table-wrap {
         padding: 10px;
+    }
+
+    .attendee-table {
+        min-width: 100%;
+    }
+
+    .attendee-table thead {
+        display: none;
+    }
+
+    .attendee-table,
+    .attendee-table tbody,
+    .attendee-table tr,
+    .attendee-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .attendee-table tr {
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        padding: 12px 0;
+    }
+
+    .attendee-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: none;
+    }
+
+    .attendee-table td::before {
+        content: attr(data-label);
+        font-size: 12px;
+        color: var(--muted);
+        flex: 0 0 90px;
+    }
+
+    .attendee-name {
+        font-size: 16px;
+        padding-top: 4px;
+    }
+
+    .attendee-name::before {
+        content: '이름';
     }
 }

@@ -75,12 +75,14 @@ function renderList() {
 function createNameCell(name) {
     const cell = document.createElement('td');
     cell.className = 'attendee-name';
+    cell.dataset.label = '이름';
     cell.textContent = name;
     return cell;
 }
 
 function createSelectCell(key, options, value, id) {
     const cell = document.createElement('td');
+    cell.dataset.label = getLabelForKey(key);
     const field = document.createElement('div');
     field.className = 'field';
     const select = document.createElement('select');
@@ -105,6 +107,7 @@ function createSelectCell(key, options, value, id) {
 
 function createInputCell(key, type, value, id) {
     const cell = document.createElement('td');
+    cell.dataset.label = getLabelForKey(key);
     const field = document.createElement('div');
     field.className = 'field';
     const input = document.createElement('input');
@@ -148,4 +151,21 @@ function updateCounts() {
     countAttend.textContent = attend;
     countAbsent.textContent = absent;
     countPending.textContent = pending;
+}
+
+function getLabelForKey(key) {
+    switch (key) {
+        case 'departTime':
+            return '출발시간';
+        case 'transport':
+            return '교통수단';
+        case 'status':
+            return '참여여부';
+        case 'overnight':
+            return '1박 여부';
+        case 'returnTime':
+            return '귀가 출발';
+        default:
+            return '';
+    }
 }
