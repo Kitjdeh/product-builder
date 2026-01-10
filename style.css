@@ -143,6 +143,7 @@ body {
 .attendee-table th:nth-child(1),
 .attendee-table td:nth-child(1) {
     white-space: nowrap;
+    padding-right: 10px;
 }
 
 .attendee-table th {
