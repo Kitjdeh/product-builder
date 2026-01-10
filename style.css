@@ -129,7 +129,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     min-width: 680px;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .attendee-table th,
@@ -142,9 +142,8 @@ body {
 
 .attendee-table th:nth-child(1),
 .attendee-table td:nth-child(1) {
-    width: max-content;
     white-space: nowrap;
-    padding-right: 2px;
+    padding-right: 4px;
 }
 
 .attendee-table th:nth-child(2),
