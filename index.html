@@ -1,14 +1,58 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>달력</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div class="calendar-container">
+        <!-- 헤더 -->
+        <div class="calendar-header">
+            <!-- 연도 선택 -->
+            <div class="year-selector">
+                <button class="year-btn" onclick="changeYear(-1)">◀</button>
+                <span class="year-display" onclick="openYearModal()"></span>
+                <button class="year-btn" onclick="changeYear(1)">▶</button>
+            </div>
+            <!-- 월 선택 -->
+            <div class="month-selector">
+                <button class="month-btn" onclick="changeMonth(-1)">◀</button>
+                <span class="month-display"></span>
+                <button class="month-btn" onclick="changeMonth(1)">▶</button>
+            </div>
+        </div>
+
+        <!-- 요일 -->
+        <div class="weekdays">
+            <div class="weekday">일</div>
+            <div class="weekday">월</div>
+            <div class="weekday">화</div>
+            <div class="weekday">수</div>
+            <div class="weekday">목</div>
+            <div class="weekday">금</div>
+            <div class="weekday">토</div>
+        </div>
+
+        <!-- 날짜 -->
+        <div class="days-grid" id="daysGrid"></div>
+
+        <!-- 오늘 버튼 -->
+        <button class="today-btn" onclick="goToday()">오늘</button>
+    </div>
+
+    <!-- 연도 선택 모달 -->
+    <div class="year-modal" id="yearModal">
+        <div class="year-modal-content">
+            <div class="year-modal-header">
+                <span class="year-modal-title">연도 선택</span>
+                <button class="year-modal-close" onclick="closeYearModal()">×</button>
+            </div>
+            <div class="year-grid" id="yearGrid"></div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
 </html>
