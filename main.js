@@ -44,10 +44,12 @@ const afterPartyNote = document.getElementById('afterPartyNote');
 
 const state = loadState();
 const saveTimers = new Map();
+let isRefreshing = false;
 
 renderList();
 loadRemoteState();
 initAfterNote();
+setupPullToRefresh();
 
 function loadState() {
     try {
@@ -260,4 +262,52 @@ async function saveRemoteNote(value) {
         }
         console.error('Firebase note save error:', error);
     }
+}
+
+function setupPullToRefresh() {
+    if (!('ontouchstart' in window)) {
+        return;
+    }
+    let startY = null;
+    let triggered = false;
+    const threshold = 70;
+
+    window.addEventListener('touchstart', (event) => {
+        if (window.scrollY === 0) {
+            startY = event.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (event) => {
+        if (startY === null || triggered || isRefreshing) {
+            return;
+        }
+        const currentY = event.touches[0].clientY;
+        if (currentY - startY > threshold) {
+            triggered = true;
+            refreshFromRemote();
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+        startY = null;
+        triggered = false;
+    });
+}
+
+async function refreshFromRemote() {
+    if (isRefreshing) {
+        return;
+    }
+    isRefreshing = true;
+    if (saveStatus) {
+        saveStatus.textContent = '데이터 갱신 중...';
+    }
+    await loadRemoteState();
+    if (saveStatus) {
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        saveStatus.textContent = `갱신 완료 · ${timestamp}`;
+    }
+    isRefreshing = false;
 }
