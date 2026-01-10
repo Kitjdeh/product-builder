@@ -3,59 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>달력</title>
+    <title>결혼식 참여 및 이동 체크</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="calendar-container">
-        <!-- 헤더 -->
-        <div class="calendar-header">
-            <button class="theme-toggle" id="themeToggle" type="button" aria-label="다크 모드로 전환">
-                <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-                <span class="theme-toggle-label">다크 모드</span>
-            </button>
-            <!-- 연도 선택 -->
-            <div class="year-selector">
-                <button class="year-btn" onclick="changeYear(-1)">◀</button>
-                <span class="year-display" onclick="openYearModal()"></span>
-                <button class="year-btn" onclick="changeYear(1)">▶</button>
+    <main class="page">
+        <header class="hero">
+            <div class="hero-badge">1월 24일 결혼식</div>
+            <h1>참여 및 이동 일정 체크</h1>
+            <p class="hero-subtitle">
+                참석 여부와 교통편, 출발/귀가 시간을 간단히 기록해 주세요.
+            </p>
+            <div class="hero-actions">
+                <a class="invite-link" href="https://mcard.barunsoncard.com/m/JK_W_INVITE" target="_blank" rel="noopener">
+                    청첩장 보기
+                </a>
+                <span class="save-status" id="saveStatus">로컬에 자동 저장됩니다</span>
             </div>
-            <!-- 월 선택 -->
-            <div class="month-selector">
-                <button class="month-btn" onclick="changeMonth(-1)">◀</button>
-                <span class="month-display"></span>
-                <button class="month-btn" onclick="changeMonth(1)">▶</button>
+        </header>
+
+        <section class="summary">
+            <div class="summary-card">
+                <span class="summary-label">참석</span>
+                <strong class="summary-value" id="countAttend">0</strong>
             </div>
-        </div>
-
-        <!-- 요일 -->
-        <div class="weekdays">
-            <div class="weekday">일</div>
-            <div class="weekday">월</div>
-            <div class="weekday">화</div>
-            <div class="weekday">수</div>
-            <div class="weekday">목</div>
-            <div class="weekday">금</div>
-            <div class="weekday">토</div>
-        </div>
-
-        <!-- 날짜 -->
-        <div class="days-grid" id="daysGrid"></div>
-
-        <!-- 오늘 버튼 -->
-        <button class="today-btn" onclick="goToday()">오늘</button>
-    </div>
-
-    <!-- 연도 선택 모달 -->
-    <div class="year-modal" id="yearModal">
-        <div class="year-modal-content">
-            <div class="year-modal-header">
-                <span class="year-modal-title">연도 선택</span>
-                <button class="year-modal-close" onclick="closeYearModal()">×</button>
+            <div class="summary-card">
+                <span class="summary-label">불참</span>
+                <strong class="summary-value" id="countAbsent">0</strong>
             </div>
-            <div class="year-grid" id="yearGrid"></div>
-        </div>
-    </div>
+            <div class="summary-card">
+                <span class="summary-label">미정</span>
+                <strong class="summary-value" id="countPending">0</strong>
+            </div>
+        </section>
+
+        <section class="plan">
+            <h2>일정 메모</h2>
+            <ul>
+                <li>출발지와 출발 시간을 입력하면 당일 동선이 깔끔해집니다.</li>
+                <li>교통편이 변경되면 바로 업데이트해 주세요.</li>
+                <li>세부 장소 정보는 청첩장 링크를 참고해 주세요.</li>
+            </ul>
+        </section>
+
+        <section class="attendee-section">
+            <h2>참석자 입력</h2>
+            <div class="attendee-list" id="attendeeList"></div>
+        </section>
+    </main>
 
     <script src="main.js"></script>
 </body>

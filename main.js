@@ -1,178 +1,166 @@
-let currentDate = new Date();
-        let selectedDate = null;
-        const today = new Date();
-        const themeToggle = document.getElementById('themeToggle');
-        const themeStorageKey = 'calendar-theme';
+const attendees = [
+    '문병식',
+    '류광우',
+    '박재환',
+    '이민호',
+    '기성도',
+    '류광우',
+    '나호영',
+    '백영준'
+];
 
-        function getInitialTheme() {
-            const storedTheme = localStorage.getItem(themeStorageKey);
-            if (storedTheme === 'light' || storedTheme === 'dark') {
-                return storedTheme;
-            }
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const storageKey = 'wedding-attendance-v1';
+const statusOptions = ['미정', '참석', '불참'];
+const transportOptions = ['', '자가', '대중교통', '카풀', '기타'];
+
+const defaultEntry = {
+    status: '미정',
+    transport: '',
+    departFrom: '',
+    departTime: '',
+    returnTime: '',
+    note: ''
+};
+
+const listElement = document.getElementById('attendeeList');
+const saveStatus = document.getElementById('saveStatus');
+const countAttend = document.getElementById('countAttend');
+const countAbsent = document.getElementById('countAbsent');
+const countPending = document.getElementById('countPending');
+
+const state = loadState();
+
+renderList();
+updateCounts();
+
+function loadState() {
+    try {
+        const stored = localStorage.getItem(storageKey);
+        return stored ? JSON.parse(stored) : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function persistState() {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+    if (saveStatus) {
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        saveStatus.textContent = `자동 저장됨 · ${timestamp}`;
+    }
+}
+
+function renderList() {
+    listElement.innerHTML = '';
+    attendees.forEach((name, index) => {
+        const id = `attendee-${index}`;
+        if (!state[id]) {
+            state[id] = { name, ...defaultEntry };
         }
+        const card = document.createElement('div');
+        card.className = 'attendee-card';
+        card.dataset.id = id;
 
-        function updateThemeToggle(theme) {
-            if (!themeToggle) {
-                return;
-            }
-            const isDark = theme === 'dark';
-            themeToggle.innerHTML = isDark
-                ? '<span class="theme-toggle-icon" aria-hidden="true">☀️</span><span class="theme-toggle-label">라이트 모드</span>'
-                : '<span class="theme-toggle-icon" aria-hidden="true">🌙</span><span class="theme-toggle-label">다크 모드</span>';
-            themeToggle.setAttribute('aria-label', isDark ? '라이트 모드로 전환' : '다크 모드로 전환');
+        card.appendChild(createNameBlock(name, index));
+        card.appendChild(createSelectField('참여 여부', 'status', statusOptions, state[id].status, id));
+        card.appendChild(createSelectField('교통수단', 'transport', transportOptions, state[id].transport, id));
+        card.appendChild(createInputField('출발지', 'departFrom', 'text', state[id].departFrom, id));
+        card.appendChild(createInputField('출발 시간', 'departTime', 'time', state[id].departTime, id));
+        card.appendChild(createInputField('귀가 출발', 'returnTime', 'time', state[id].returnTime, id));
+        card.appendChild(createInputField('메모', 'note', 'text', state[id].note, id));
+
+        listElement.appendChild(card);
+    });
+}
+
+function createNameBlock(name, index) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'attendee-name';
+    const title = document.createElement('strong');
+    title.textContent = name;
+    const subtitle = document.createElement('span');
+    subtitle.textContent = `참석자 ${index + 1}`;
+    wrapper.appendChild(title);
+    wrapper.appendChild(subtitle);
+    return wrapper;
+}
+
+function createSelectField(label, key, options, value, id) {
+    const field = document.createElement('label');
+    field.className = 'field';
+    const span = document.createElement('span');
+    span.className = 'field-label';
+    span.textContent = label;
+    const select = document.createElement('select');
+    select.name = key;
+
+    options.forEach((optionValue) => {
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionValue === '' ? '선택' : optionValue;
+        if (optionValue === value) {
+            option.selected = true;
         }
+        select.appendChild(option);
+    });
 
-        function applyTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem(themeStorageKey, theme);
-            updateThemeToggle(theme);
+    select.addEventListener('change', (event) => {
+        updateEntry(id, key, event.target.value);
+    });
+
+    field.appendChild(span);
+    field.appendChild(select);
+    return field;
+}
+
+function createInputField(label, key, type, value, id) {
+    const field = document.createElement('label');
+    field.className = 'field';
+    const span = document.createElement('span');
+    span.className = 'field-label';
+    span.textContent = label;
+    const input = document.createElement('input');
+    input.type = type;
+    input.name = key;
+    input.value = value || '';
+    input.placeholder = type === 'time' ? '--:--' : '입력';
+
+    input.addEventListener('input', (event) => {
+        updateEntry(id, key, event.target.value);
+    });
+
+    field.appendChild(span);
+    field.appendChild(input);
+    return field;
+}
+
+function updateEntry(id, key, value) {
+    if (!state[id]) {
+        state[id] = { ...defaultEntry };
+    }
+    state[id][key] = value;
+    persistState();
+    updateCounts();
+}
+
+function updateCounts() {
+    let attend = 0;
+    let absent = 0;
+    let pending = 0;
+
+    attendees.forEach((_, index) => {
+        const entry = state[`attendee-${index}`] || defaultEntry;
+        if (entry.status === '참석') {
+            attend += 1;
+        } else if (entry.status === '불참') {
+            absent += 1;
+        } else {
+            pending += 1;
         }
+    });
 
-        // 초기화
-        function init() {
-            applyTheme(getInitialTheme());
-            renderCalendar();
-            if (themeToggle) {
-                themeToggle.addEventListener('click', () => {
-                    const currentTheme = document.body.getAttribute('data-theme') || 'light';
-                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-                });
-            }
-        }
-
-        // 달력 렌더링
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            // 헤더 업데이트
-            document.querySelector('.year-display').textContent = `${year}년`;
-            document.querySelector('.month-display').textContent = `${month + 1}월`;
-
-            // 날짜 그리드 생성
-            const daysGrid = document.getElementById('daysGrid');
-            daysGrid.innerHTML = '';
-
-            // 해당 월의 첫째 날과 마지막 날
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-
-            // 첫째 날 이전 빈 칸
-            for (let i = 0; i < firstDay.getDay(); i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.className = 'day empty';
-                daysGrid.appendChild(emptyDay);
-            }
-
-            // 날짜 채우기
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'day';
-                dayElement.textContent = day;
-
-                const date = new Date(year, month, day);
-                const dayOfWeek = date.getDay();
-
-                // 일요일/토요일 색상
-                if (dayOfWeek === 0) dayElement.classList.add('sunday');
-                if (dayOfWeek === 6) dayElement.classList.add('saturday');
-
-                // 오늘 표시
-                if (year === today.getFullYear() &&
-                    month === today.getMonth() &&
-                    day === today.getDate()) {
-                    dayElement.classList.add('today');
-                }
-
-                // 선택된 날짜 표시
-                if (selectedDate &&
-                    year === selectedDate.getFullYear() &&
-                    month === selectedDate.getMonth() &&
-                    day === selectedDate.getDate()) {
-                    dayElement.classList.add('selected');
-                }
-
-                // 클릭 이벤트
-                dayElement.onclick = () => selectDate(year, month, day);
-
-                daysGrid.appendChild(dayElement);
-            }
-        }
-
-        // 월 변경
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
-        }
-
-        // 연도 변경
-        function changeYear(delta) {
-            currentDate.setFullYear(currentDate.getFullYear() + delta);
-            renderCalendar();
-        }
-
-        // 오늘로 이동
-        function goToday() {
-            currentDate = new Date();
-            selectedDate = new Date();
-            renderCalendar();
-        }
-
-        // 날짜 선택
-        function selectDate(year, month, day) {
-            selectedDate = new Date(year, month, day);
-            renderCalendar();
-            
-            // 선택된 날짜 알림 (필요시 수정)
-            const formatted = `${year}년 ${month + 1}월 ${day}일`;
-            console.log('선택된 날짜:', formatted);
-        }
-
-        // 연도 모달 열기
-        function openYearModal() {
-            const modal = document.getElementById('yearModal');
-            const yearGrid = document.getElementById('yearGrid');
-            modal.classList.add('active');
-
-            // 연도 목록 생성 (현재 연도 기준 ±10년)
-            const currentYear = currentDate.getFullYear();
-            const thisYear = today.getFullYear();
-            yearGrid.innerHTML = '';
-
-            for (let year = thisYear - 10; year <= thisYear + 10; year++) {
-                const yearOption = document.createElement('div');
-                yearOption.className = 'year-option';
-                yearOption.textContent = year;
-
-                if (year === thisYear) {
-                    yearOption.classList.add('current');
-                }
-                if (year === currentYear) {
-                    yearOption.classList.add('selected');
-                }
-
-                yearOption.onclick = () => {
-                    currentDate.setFullYear(year);
-                    renderCalendar();
-                    closeYearModal();
-                };
-
-                yearGrid.appendChild(yearOption);
-            }
-        }
-
-        // 연도 모달 닫기
-        function closeYearModal() {
-            document.getElementById('yearModal').classList.remove('active');
-        }
-
-        // 모달 외부 클릭 시 닫기
-        document.getElementById('yearModal').onclick = function(e) {
-            if (e.target === this) {
-                closeYearModal();
-            }
-        };
-
-        // 초기화 실행
-        init();
+    countAttend.textContent = attend;
+    countAbsent.textContent = absent;
+    countPending.textContent = pending;
+}
