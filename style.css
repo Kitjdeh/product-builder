@@ -217,31 +217,18 @@ body {
 
     .attendee-table th:nth-child(1),
     .attendee-table td:nth-child(1) {
-        width: 80px;
+        width: 4ch;
         padding-right: 2px;
     }
 
     .attendee-table th:nth-child(2),
-    .attendee-table td:nth-child(2),
-    .attendee-table th:nth-child(5),
-    .attendee-table td:nth-child(5) {
-        width: 60px;
-    }
-
-    .attendee-table th:nth-child(3),
-    .attendee-table td:nth-child(3) {
-        width: 75px;
-    }
-
-    .attendee-table th:nth-child(4),
-    .attendee-table td:nth-child(4) {
-        width: 60px;
-        padding-left: 4px;
+    .attendee-table td:nth-child(2) {
+        width: 8ch;
     }
 
     .attendee-table th,
     .attendee-table td {
-        padding: 8px 6px;
+        padding: 6px 4px;
         font-size: 12px;
     }
 
