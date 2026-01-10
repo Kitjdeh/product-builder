@@ -22,33 +22,39 @@
             </div>
         </header>
 
-        <section class="summary">
-            <div class="summary-card">
-                <span class="summary-label">참석</span>
-                <strong class="summary-value" id="countAttend">0</strong>
-            </div>
-            <div class="summary-card">
-                <span class="summary-label">불참</span>
-                <strong class="summary-value" id="countAbsent">0</strong>
-            </div>
-            <div class="summary-card">
-                <span class="summary-label">미정</span>
-                <strong class="summary-value" id="countPending">0</strong>
-            </div>
-        </section>
-
-        <section class="plan">
-            <h2>일정 메모</h2>
-            <ul>
-                <li>출발지와 출발 시간을 입력하면 당일 동선이 깔끔해집니다.</li>
-                <li>교통편이 변경되면 바로 업데이트해 주세요.</li>
-                <li>세부 장소 정보는 청첩장 링크를 참고해 주세요.</li>
-            </ul>
-        </section>
-
         <section class="attendee-section">
-            <h2>참석자 입력</h2>
-            <div class="attendee-list" id="attendeeList"></div>
+            <div class="attendee-header">
+                <h2>참석자 입력</h2>
+                <div class="summary">
+                    <div class="summary-card">
+                        <span class="summary-label">참석</span>
+                        <strong class="summary-value" id="countAttend">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">불참</span>
+                        <strong class="summary-value" id="countAbsent">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">미정</span>
+                        <strong class="summary-value" id="countPending">0</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table class="attendee-table">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>출발시간</th>
+                            <th>교통수단</th>
+                            <th>참여여부</th>
+                            <th>1박 여부</th>
+                            <th>귀가 출발</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendeeList"></tbody>
+                </table>
+            </div>
         </section>
     </main>
 

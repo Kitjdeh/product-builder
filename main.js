@@ -11,15 +11,15 @@ const attendees = [
 
 const storageKey = 'wedding-attendance-v1';
 const statusOptions = ['미정', '참석', '불참'];
-const transportOptions = ['', '자가', '대중교통', '카풀', '기타'];
+const transportOptions = ['', 'SRT', '비행기', '자차', '대중교통', '버스'];
+const overnightOptions = ['', '예', '아니오'];
 
 const defaultEntry = {
     status: '미정',
     transport: '',
-    departFrom: '',
     departTime: '',
     returnTime: '',
-    note: ''
+    overnight: ''
 };
 
 const listElement = document.getElementById('attendeeList');
@@ -58,40 +58,31 @@ function renderList() {
         if (!state[id]) {
             state[id] = { name, ...defaultEntry };
         }
-        const card = document.createElement('div');
-        card.className = 'attendee-card';
-        card.dataset.id = id;
+        const row = document.createElement('tr');
+        row.dataset.id = id;
 
-        card.appendChild(createNameBlock(name, index));
-        card.appendChild(createSelectField('참여 여부', 'status', statusOptions, state[id].status, id));
-        card.appendChild(createSelectField('교통수단', 'transport', transportOptions, state[id].transport, id));
-        card.appendChild(createInputField('출발지', 'departFrom', 'text', state[id].departFrom, id));
-        card.appendChild(createInputField('출발 시간', 'departTime', 'time', state[id].departTime, id));
-        card.appendChild(createInputField('귀가 출발', 'returnTime', 'time', state[id].returnTime, id));
-        card.appendChild(createInputField('메모', 'note', 'text', state[id].note, id));
+        row.appendChild(createNameCell(name));
+        row.appendChild(createInputCell('departTime', 'time', state[id].departTime, id));
+        row.appendChild(createSelectCell('transport', transportOptions, state[id].transport, id));
+        row.appendChild(createSelectCell('status', statusOptions, state[id].status, id));
+        row.appendChild(createSelectCell('overnight', overnightOptions, state[id].overnight, id));
+        row.appendChild(createInputCell('returnTime', 'time', state[id].returnTime, id));
 
-        listElement.appendChild(card);
+        listElement.appendChild(row);
     });
 }
 
-function createNameBlock(name, index) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'attendee-name';
-    const title = document.createElement('strong');
-    title.textContent = name;
-    const subtitle = document.createElement('span');
-    subtitle.textContent = `참석자 ${index + 1}`;
-    wrapper.appendChild(title);
-    wrapper.appendChild(subtitle);
-    return wrapper;
+function createNameCell(name) {
+    const cell = document.createElement('td');
+    cell.className = 'attendee-name';
+    cell.textContent = name;
+    return cell;
 }
 
-function createSelectField(label, key, options, value, id) {
-    const field = document.createElement('label');
+function createSelectCell(key, options, value, id) {
+    const cell = document.createElement('td');
+    const field = document.createElement('div');
     field.className = 'field';
-    const span = document.createElement('span');
-    span.className = 'field-label';
-    span.textContent = label;
     const select = document.createElement('select');
     select.name = key;
 
@@ -105,34 +96,28 @@ function createSelectField(label, key, options, value, id) {
         select.appendChild(option);
     });
 
-    select.addEventListener('change', (event) => {
-        updateEntry(id, key, event.target.value);
-    });
+    select.addEventListener('change', (event) => updateEntry(id, key, event.target.value));
 
-    field.appendChild(span);
     field.appendChild(select);
-    return field;
+    cell.appendChild(field);
+    return cell;
 }
 
-function createInputField(label, key, type, value, id) {
-    const field = document.createElement('label');
+function createInputCell(key, type, value, id) {
+    const cell = document.createElement('td');
+    const field = document.createElement('div');
     field.className = 'field';
-    const span = document.createElement('span');
-    span.className = 'field-label';
-    span.textContent = label;
     const input = document.createElement('input');
     input.type = type;
     input.name = key;
     input.value = value || '';
     input.placeholder = type === 'time' ? '--:--' : '입력';
 
-    input.addEventListener('input', (event) => {
-        updateEntry(id, key, event.target.value);
-    });
+    input.addEventListener('input', (event) => updateEntry(id, key, event.target.value));
 
-    field.appendChild(span);
     field.appendChild(input);
-    return field;
+    cell.appendChild(field);
+    return cell;
 }
 
 function updateEntry(id, key, value) {
