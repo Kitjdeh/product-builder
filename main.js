@@ -10,28 +10,20 @@ const attendees = [
 ];
 
 const storageKey = 'wedding-attendance-v1';
-const statusOptions = ['미정', '참석', '불참'];
 const transportOptions = ['', 'SRT', '비행기', '자차', '대중교통', '버스'];
-const overnightOptions = ['', '예', '아니오'];
 
 const defaultEntry = {
-    status: '미정',
     transport: '',
     departTime: '',
-    returnTime: '',
-    overnight: ''
+    returnTime: ''
 };
 
 const listElement = document.getElementById('attendeeList');
 const saveStatus = document.getElementById('saveStatus');
-const countAttend = document.getElementById('countAttend');
-const countAbsent = document.getElementById('countAbsent');
-const countPending = document.getElementById('countPending');
 
 const state = loadState();
 
 renderList();
-updateCounts();
 
 function loadState() {
     try {
@@ -64,8 +56,6 @@ function renderList() {
         row.appendChild(createNameCell(name));
         row.appendChild(createInputCell('departTime', 'time', state[id].departTime, id));
         row.appendChild(createSelectCell('transport', transportOptions, state[id].transport, id));
-        row.appendChild(createSelectCell('status', statusOptions, state[id].status, id));
-        row.appendChild(createSelectCell('overnight', overnightOptions, state[id].overnight, id));
         row.appendChild(createInputCell('returnTime', 'time', state[id].returnTime, id));
 
         listElement.appendChild(row);
@@ -129,28 +119,6 @@ function updateEntry(id, key, value) {
     }
     state[id][key] = value;
     persistState();
-    updateCounts();
-}
-
-function updateCounts() {
-    let attend = 0;
-    let absent = 0;
-    let pending = 0;
-
-    attendees.forEach((_, index) => {
-        const entry = state[`attendee-${index}`] || defaultEntry;
-        if (entry.status === '참석') {
-            attend += 1;
-        } else if (entry.status === '불참') {
-            absent += 1;
-        } else {
-            pending += 1;
-        }
-    });
-
-    countAttend.textContent = attend;
-    countAbsent.textContent = absent;
-    countPending.textContent = pending;
 }
 
 function getLabelForKey(key) {
@@ -159,10 +127,6 @@ function getLabelForKey(key) {
             return '출발시간';
         case 'transport':
             return '교통수단';
-        case 'status':
-            return '참여여부';
-        case 'overnight':
-            return '1박 여부';
         case 'returnTime':
             return '귀가 출발';
         default:
