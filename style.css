@@ -206,7 +206,7 @@ body {
 
     .attendee-table th:nth-child(2),
     .attendee-table td:nth-child(2) {
-        width: 8ch;
+        width: 4ch;
     }
 
     .attendee-table th:nth-child(3),
