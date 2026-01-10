@@ -10,7 +10,7 @@ const attendees = [
 ];
 
 const storageKey = 'wedding-attendance-v1';
-const transportOptions = ['', 'SRT', '비행기', '자차', '대중교통', '버스'];
+const transportOptions = ['', 'SRT', '비행기', '자차', '버스'];
 
 const defaultEntry = {
     transport: '',
