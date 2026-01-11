@@ -22,9 +22,11 @@ const attendees = [
     '박재환',
     '이민호',
     '기성도',
-    '류광우',
     '나호영',
     '백영준'
+];
+const legacyAttendeeMerges = [
+    { fromId: 'attendee-6', toId: 'attendee-1' }
 ];
 
 const storageKey = 'wedding-attendance-v1';
@@ -45,7 +47,9 @@ const afterPartyNote = document.getElementById('afterPartyNote');
 
 const state = loadState();
 const saveTimers = new Map();
+const pendingChanges = new Map();
 let isRefreshing = false;
+let isLoadingRemote = true;
 
 renderList();
 loadRemoteState();
@@ -105,6 +109,7 @@ function createSelectCell(key, options, value, id) {
     field.className = 'field';
     const select = document.createElement('select');
     select.name = key;
+    select.disabled = isLoadingRemote;
 
     options.forEach((optionValue) => {
         const option = document.createElement('option');
@@ -133,6 +138,7 @@ function createInputCell(key, type, value, id) {
     input.name = key;
     input.value = value || '';
     input.placeholder = type === 'time' ? '--:--' : '입력';
+    input.disabled = isLoadingRemote;
 
     input.addEventListener('input', (event) => updateEntry(id, key, event.target.value));
 
@@ -142,12 +148,15 @@ function createInputCell(key, type, value, id) {
 }
 
 function updateEntry(id, key, value) {
+    if (isLoadingRemote) {
+        return;
+    }
     if (!state[id]) {
         state[id] = { ...defaultEntry };
     }
     state[id][key] = value;
     persistState();
-    scheduleRemoteSave(id);
+    scheduleRemoteSave(id, key, value);
 }
 
 function getLabelForKey(key) {
@@ -165,7 +174,10 @@ function getLabelForKey(key) {
     }
 }
 
-function scheduleRemoteSave(id) {
+function scheduleRemoteSave(id, key, value) {
+    const changes = pendingChanges.get(id) || {};
+    changes[key] = value;
+    pendingChanges.set(id, changes);
     if (saveTimers.has(id)) {
         clearTimeout(saveTimers.get(id));
     }
@@ -178,14 +190,16 @@ function scheduleRemoteSave(id) {
 
 async function saveRemoteState(id) {
     const entry = state[id];
-    if (!entry) {
+    const changes = pendingChanges.get(id);
+    if (!entry || !changes) {
         return;
     }
     try {
         await setDoc(doc(db, 'events', eventId, 'attendees', id), {
-            ...entry,
+            ...changes,
             name: entry.name
         }, { merge: true });
+        pendingChanges.delete(id);
         const now = new Date();
         const timestamp = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
         if (saveStatus) {
@@ -200,6 +214,7 @@ async function saveRemoteState(id) {
 }
 
 async function loadRemoteState() {
+    isLoadingRemote = true;
     try {
         const entries = await Promise.all(attendees.map(async (_, index) => {
             const id = `attendee-${index}`;
@@ -214,6 +229,8 @@ async function loadRemoteState() {
             state[id] = { ...defaultEntry, ...state[id], ...data };
         });
 
+        await mergeLegacyAttendees();
+
         const eventSnapshot = await getDoc(doc(db, 'events', eventId));
         if (eventSnapshot.exists()) {
             const data = eventSnapshot.data();
@@ -222,11 +239,42 @@ async function loadRemoteState() {
             }
         }
 
+        isLoadingRemote = false;
         renderList();
         persistState();
     } catch (error) {
         console.error('Firebase load error:', error);
+        isLoadingRemote = false;
+        renderList();
     }
+}
+
+function mergeEntryData(primary, secondary) {
+    const merged = { ...primary };
+    ['departTime', 'transport', 'overnight', 'returnTime'].forEach((key) => {
+        if (!merged[key] && secondary[key]) {
+            merged[key] = secondary[key];
+        }
+    });
+    return merged;
+}
+
+async function mergeLegacyAttendees() {
+    if (!legacyAttendeeMerges.length) {
+        return;
+    }
+    await Promise.all(legacyAttendeeMerges.map(async ({ fromId, toId }) => {
+        const snapshot = await getDoc(doc(db, 'events', eventId, 'attendees', fromId));
+        if (!snapshot.exists()) {
+            return;
+        }
+        const fromData = snapshot.data();
+        const current = state[toId] || { ...defaultEntry };
+        const merged = mergeEntryData(current, fromData);
+        merged.name = current.name || fromData.name || '';
+        state[toId] = merged;
+        await setDoc(doc(db, 'events', eventId, 'attendees', toId), merged, { merge: true });
+    }));
 }
 
 function initAfterNote() {
