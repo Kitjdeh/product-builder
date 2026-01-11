@@ -279,9 +279,33 @@ body {
     font-size: 14px;
     font-family: inherit;
     resize: vertical;
+    background: #ffffff;
 }
 
 .after-plan textarea:focus {
     outline: 2px solid rgba(15, 118, 110, 0.2);
     border-color: var(--accent);
+}
+
+.after-plan-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-button {
+    border: none;
+    background: var(--accent);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(15, 118, 110, 0.28);
+}
+
+.save-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
 }

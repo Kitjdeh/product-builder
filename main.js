@@ -44,6 +44,7 @@ const defaultEntry = {
 const listElement = document.getElementById('attendeeList');
 const saveStatus = document.getElementById('saveStatus');
 const afterPartyNote = document.getElementById('afterPartyNote');
+const afterPartySaveButton = document.getElementById('afterPartySave');
 
 const state = loadState();
 const saveTimers = new Map();
@@ -215,6 +216,7 @@ async function saveRemoteState(id) {
 
 async function loadRemoteState() {
     isLoadingRemote = true;
+    setAfterPartyControlsState(true);
     try {
         const entries = await Promise.all(attendees.map(async (_, index) => {
             const id = `attendee-${index}`;
@@ -232,19 +234,29 @@ async function loadRemoteState() {
         await mergeLegacyAttendees();
 
         const eventSnapshot = await getDoc(doc(db, 'events', eventId));
+        let noteValue = '';
         if (eventSnapshot.exists()) {
             const data = eventSnapshot.data();
             if (afterPartyNote && typeof data.afterPartyNote === 'string') {
-                afterPartyNote.value = data.afterPartyNote;
+                noteValue = data.afterPartyNote;
             }
         }
+        if (afterPartyNote) {
+            if (noteValue === '') {
+                noteValue = await ensureAfterPartyNoteField();
+            }
+            afterPartyNote.value = noteValue;
+            localStorage.setItem(noteStorageKey, noteValue);
+        }
 
+        setAfterPartyControlsState(false);
         isLoadingRemote = false;
         renderList();
         persistState();
     } catch (error) {
         console.error('Firebase load error:', error);
         isLoadingRemote = false;
+        setAfterPartyControlsState(false);
         renderList();
     }
 }
@@ -281,20 +293,22 @@ function initAfterNote() {
     if (!afterPartyNote) {
         return;
     }
+    setAfterPartyControlsState(isLoadingRemote);
     const localNote = localStorage.getItem(noteStorageKey);
     if (localNote) {
         afterPartyNote.value = localNote;
     }
-    let noteTimer = null;
     afterPartyNote.addEventListener('input', (event) => {
         localStorage.setItem(noteStorageKey, event.target.value);
-        if (noteTimer) {
-            clearTimeout(noteTimer);
+        if (saveStatus) {
+            saveStatus.textContent = '식장 종료 후 일정 변경됨 · 저장 필요';
         }
-        noteTimer = setTimeout(() => {
-            saveRemoteNote(event.target.value);
-        }, 500);
     });
+    if (afterPartySaveButton) {
+        afterPartySaveButton.addEventListener('click', () => {
+            saveRemoteNote(afterPartyNote.value);
+        });
+    }
 }
 
 async function saveRemoteNote(value) {
@@ -310,6 +324,25 @@ async function saveRemoteNote(value) {
             saveStatus.textContent = 'Firebase 저장 실패';
         }
         console.error('Firebase note save error:', error);
+    }
+}
+
+async function ensureAfterPartyNoteField() {
+    const localNote = localStorage.getItem(noteStorageKey) || '';
+    try {
+        await setDoc(doc(db, 'events', eventId), { afterPartyNote: localNote }, { merge: true });
+    } catch (error) {
+        console.error('Firebase note field init error:', error);
+    }
+    return localNote;
+}
+
+function setAfterPartyControlsState(disabled) {
+    if (afterPartyNote) {
+        afterPartyNote.disabled = disabled;
+    }
+    if (afterPartySaveButton) {
+        afterPartySaveButton.disabled = disabled;
     }
 }
 
