@@ -321,7 +321,8 @@ async function saveRemoteNote(value) {
         }
     } catch (error) {
         if (saveStatus) {
-            saveStatus.textContent = 'Firebase 저장 실패';
+            const detail = error && error.code ? ` · ${error.code}` : '';
+            saveStatus.textContent = `Firebase 저장 실패${detail}`;
         }
         console.error('Firebase note save error:', error);
     }
@@ -332,6 +333,10 @@ async function ensureAfterPartyNoteField() {
     try {
         await setDoc(doc(db, 'events', eventId), { afterPartyNote: localNote }, { merge: true });
     } catch (error) {
+        if (saveStatus) {
+            const detail = error && error.code ? ` · ${error.code}` : '';
+            saveStatus.textContent = `Firebase 저장 실패${detail}`;
+        }
         console.error('Firebase note field init error:', error);
     }
     return localNote;
